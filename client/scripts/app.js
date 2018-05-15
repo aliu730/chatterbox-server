@@ -32,7 +32,7 @@ var app = {
     // Poll for new messages
     setInterval(function() {
       app.fetch(true);
-    }, 3000);
+    }, 30000);
   },
 
   send: function(message) {
@@ -46,6 +46,7 @@ var app = {
       contentType: 'application/json',
       success: function (data) {
         // Clear messages input
+        console.log('successs');
         app.$message.val('');
 
         // Trigger a fetch to update the messages, pass true to animate
@@ -61,28 +62,20 @@ var app = {
     $.ajax({
       url: app.server,
       type: 'GET',
-      //data: { order: '-createdAt' },
       success: function(data) {
         // Don't bother if we have nothing to work with
         if (!data.results || !data.results.length) { return; }
-
         // Store messages for caching later
-        app.messages = data.results;
+        console.log(data.results);
+        app.messages = data.results.map(x => JSON.parse(x));
 
         // Get the last message
         var mostRecentMessage = data.results[data.results.length - 1];
 
-        // Only bother updating the DOM if we have a new message
-        if (mostRecentMessage.objectId !== app.lastMessageId) {
-          // Update the UI with the fetched rooms
-          app.renderRoomList(data.results);
+       
+        app.renderMessages(app.messages, animate);
 
-          // Update the UI with the fetched messages
-          app.renderMessages(data.results, animate);
-
-          // Store the ID of the most recent message
-          app.lastMessageId = mostRecentMessage.objectId;
-        }
+    
       },
       error: function(error) {
         console.error('chatterbox: Failed to fetch messages', error);
@@ -221,7 +214,7 @@ var app = {
     app.send(message);
 
     // Stop the form from submitting
-    event.preventDefault();
+    //event.preventDefault();
   },
 
   startSpinner: function() {

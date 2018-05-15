@@ -47,7 +47,7 @@ var requestHandler = function(request, response) {
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
   headers['Content-Type'] = 'application/json';
-
+  //headers['Accept'] = true;
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
   
@@ -63,16 +63,23 @@ var requestHandler = function(request, response) {
   } else if (request.method === 'POST') {
     if (request.url === '/classes/messages') {
       response.writeHead(201, headers);
+      var body = '';
+      request.setEncoding('utf8');
       request.on('data', (chunk) => {
-        messages.results.push(JSON.parse(chunk));
+        body += chunk;
       });
-      response.end(() => {
-        JSON.stringify(messages.results);
-      });
+      request.on('end', function() {
+        console.log('Body: ', body);
+        messages.results.unshift(body);
+        response.end();
+      })
     } else {
       response.writeHead(404, headers);
       response.end('FAILURE');
     }
+  } else if (request.method === 'OPTIONS') {
+    response.writeHead(200, headers);
+    response.end();
   }
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
