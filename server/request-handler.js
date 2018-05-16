@@ -72,10 +72,10 @@ var requestHandler = function(request, response) {
         console.log('Body: ', body);
         messages.results.unshift(body);
         response.end();
-      })
+      });
     } else {
       response.writeHead(404, headers);
-      response.end('FAILURE');
+      response.end(JSON.stringify('Not Found'));
     }
   } else if (request.method === 'OPTIONS') {
     response.writeHead(200, headers);
